@@ -9,12 +9,9 @@ customization:
 development:  
     inherit FinalDevice class and make adjustments  
 
-not working:  
-    midi_client.py  
-
 todo:  
-    midi interaction  
+    midi interaction advanced. 
+        currently this is just a 9-knob midi cc device
     osc interaction  
     wxPython interaction  
-    delayed and curve-based interaction  
-    
+    delayed interaction  

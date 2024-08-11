@@ -1,4 +1,5 @@
 from typing import Callable
+from unittest import result
 import usb.core
 import usb.util
 from enums import *
@@ -177,7 +178,7 @@ class RunnableMixin:
 class StatefulMixin:
     def __init__(self):
         self.state_number = 0
-        self.state_class = State
+        self.state_class:State = State
         self.states = [self.state_class(self, e) for e in range(16)]
         super().__init__()
         self.startup()
@@ -196,7 +197,9 @@ class StatefulMixin:
         result = self.states[self.state_number]
         if not isinstance(k, (tuple, list)):
             k = [k]
-        if len(k) == 2:
+        if len(k)==1:
+            k = ['encoder', "value", k]
+        elif len(k) == 2:
             k = [k[0], "value", k[1]]
         for e in k[:-1]:
             if isinstance(e, MyField):
@@ -217,6 +220,17 @@ class StatefulMixin:
             raise ValueError
         result[k] = v
 
+    def get(self,k,default):
+        try:
+            r=result[k]
+        except KeyError:
+            r = default
+        return r
+
+    def get_key(self,k):
+        result,k= self.__get_set_handler(k)
+        return k
+    
     def startup(self, commands: list[BatchCommands] = None):
         self.batch_write([BatchCommands.Brightness_full, *commands])
         self.set_state()
