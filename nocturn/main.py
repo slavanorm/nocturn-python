@@ -41,6 +41,8 @@ def func(arg: ParsedCommand):
         if command.encoder:
             dev.batch_write(SingleCommands.Encoder, ks=k, vs=v)
             midiout.send_message([CONTROL_CHANGE, k, dev[command, k]])
+        if command.button:
+            dev.batch_write(SingleCommands.Button_invert, ks=k, vs=v)
     return arg
 
 

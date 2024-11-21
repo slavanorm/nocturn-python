@@ -1,7 +1,6 @@
 this library allows to interact with Novation Nocturn device  
 requirements:  
-    python>=3.10  
-    pyusb library
+    python3.11|3.12
 usage:  
     python main.py  
 customization:  
@@ -14,4 +13,4 @@ todo:
         currently this is just a 9-knob midi cc device
     osc interaction  
     wxPython interaction  
-    delayed interaction  
+    delayed interaction / python async
