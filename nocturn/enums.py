@@ -32,7 +32,7 @@ class MyField:
 
     @property
     def standard_command(self):
-        return not self.send and (self.style or self.button or self.encoder)
+        return not self.send and (self.style or self.button or self.encoder or self.fader)
 
     @property
     def send(self):

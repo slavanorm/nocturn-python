@@ -5,6 +5,7 @@ import usb.util
 from enums import *
 import time
 import itertools
+from rtmidi.midiconstants import NOTE_ON, CONTROL_CHANGE  # midi reference list
 
 
 def myrange(len, start=None):
@@ -186,7 +187,7 @@ class StatefulMixin:
     def add_state(self):
         self.states += [State()]
 
-    def set_state(self, state_number=None):
+    def set_state(self, state_number=0):
         print("using state:", state_number)
         if not state_number:
             state_number = 0
@@ -339,7 +340,7 @@ class WriteableMixin:
                 v += self[command, k]
 
             if command == SingleCommands.Button_invert:
-                v = -127 * self[command, k]
+                v = 127 * (not self[command, k])
 
             if "_on" in command:
                 v = 127
@@ -386,4 +387,25 @@ def listen_and_batch_write(arg: ParsedCommand):
             dev.batch_write(BatchCommands.Encoder, v)  #
         if command.button:
             dev.batch_write(BatchCommands.Button_invert)
+    return arg
+
+
+def listen_and_output_midi(arg: ParsedCommand):
+    # for every enc value
+    #  update led
+    #  midi-out stored value
+    command, k, v = arg
+    if command.standard_command:
+        
+        if command.encoder:
+            v=v*2
+            dev.batch_write(SingleCommands.Encoder, ks=k, vs=v)
+            midiout.send_message([CONTROL_CHANGE, k, dev[command, k]])
+        if command.fader:
+            dev.batch_write(SingleCommands.Fader, ks=k, vs=v)
+            midiout.send_message([CONTROL_CHANGE, 127, dev[command, k]])
+        if command.button and k!=16:
+            # sends 127 and 0
+            dev.batch_write(SingleCommands.Button_invert, ks=k, vs=v)
+            midiout.send_message([NOTE_ON, k, v])
     return arg

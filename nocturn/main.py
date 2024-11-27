@@ -1,6 +1,6 @@
-from usb_client import dev, SingleCommands, ParsedCommand
+from usb_client import dev, SingleCommands, ParsedCommand,listen_and_output_midi
 from midi_client import startup
-from rtmidi.midiconstants import CONTROL_CHANGE  # midi reference list
+from rtmidi.midiconstants import * # midi reference list
 
 # todo:
 #  config1:
@@ -19,6 +19,7 @@ from rtmidi.midiconstants import CONTROL_CHANGE  # midi reference list
 
 
 def func(arg: ParsedCommand):
+    # wip: device with 9 encoders * 16 states via buttons.
     # for every enc value
     #  writes to led
     # button
@@ -27,26 +28,15 @@ def func(arg: ParsedCommand):
     if command.standard_command:
         if command.encoder:
             dev.batch_write(SingleCommands.Encoder, ks=k, vs=v)
-        if command.button:
+        if command.button and k!=16: # dial btn
             dev.set_state(k)
-    return arg
-
-
-def func(arg: ParsedCommand):
-    # for every enc value
-    #  update led
-    #  midi-out stored value
-    command, k, v = arg
-    if command.standard_command:
-        if command.encoder:
-            dev.batch_write(SingleCommands.Encoder, ks=k, vs=v)
-            midiout.send_message([CONTROL_CHANGE, k, dev[command, k]])
-        if command.button:
-            dev.batch_write(SingleCommands.Button_invert, ks=k, vs=v)
     return arg
 
 
 midiin, midiout = startup()
 
-dev.looping_func = func
+dev.looping_func = listen_and_output_midi
 dev.loop_blocking()
+
+
+
